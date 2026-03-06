@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zarejestruj się - YogaFlow AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="auth-page">
+
+    <div class="auth-container">
+        <a href="index.html" class="auth-logo">YogaFlow<span>AI</span></a>
+        <div class="auth-card">
+            <h2>Stwórz konto klienta</h2>
+            <p class="auth-subtitle">Dołącz do naszej społeczności i zacznij ćwiczyć.</p>
+
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="name">Imię i nazwisko</label>
+                    <input type="text" id="name" name="name" placeholder="Wpisz swoje imię" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="Wpisz swój e-mail" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Hasło</label>
+                    <input type="password" id="password" name="password" placeholder="Stwórz hasło" required>
+                </div>
+
+                <div id="registerError" class="auth-error" style="display: none; color: #ff4b4b; margin-bottom: 15px;">
+                </div>
+                <div id="registerSuccess" class="auth-success"
+                    style="display: none; color: #28a745; margin-bottom: 15px;"></div>
+
+                <button type="submit" class="auth-btn">Zarejestruj się</button>
+            </form>
+
+            <p class="auth-redirect">Masz już konto? <a href="login.html">Zaloguj się</a></p>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successDiv.textContent = 'Konto zostało utworzone! Przekierowywanie do logowania...';
+                    successDiv.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Błąd rejestracji:', err);
+                errorDiv.textContent = 'Błąd połączenia z serwerem. Upewnij się, że otwierasz stronę przez http://localhost:3000, a nie bezpośrednio z pliku.';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

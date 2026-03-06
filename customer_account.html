@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konto Klienta - YogaFlow AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .portal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 2px solid #C4A69B;
+        }
+
+        .portal-content {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .user-info-card {
+            background: #f9f6f7;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body style="background-color: #ECE3DA;">
+
+    <header class="portal-header">
+        <a href="index.html" class="auth-logo" style="margin: 0;">YogaFlow<span>AI</span></a>
+        <div>
+            <span id="userNameDisplay" style="margin-right: 20px; font-weight: bold; color: #5a3d5c;"></span>
+            <button id="logoutBtn" class="auth-btn"
+                style="padding: 10px 20px; width: auto; font-size: 14px;">Wyloguj</button>
+        </div>
+    </header>
+
+    <div class="portal-content">
+        <h1>Moje Konto</h1>
+
+        <div class="user-info-card">
+            <h3>Dane profilu</h3>
+            <p><strong>Imię:</strong> <span id="profileName">Ładowanie...</span></p>
+            <p><strong>E-mail:</strong> <span id="profileEmail">Ładowanie...</span></p>
+            <p><strong>Konto utworzone:</strong> <span id="profileDate">Ładowanie...</span></p>
+        </div>
+
+        <div class="user-info-card">
+            <h3>Moje rezerwacje</h3>
+            <div id="userClassesList">
+                <p>Ładowanie rezerwacji...</p>
+            </div>
+        </div>
+
+        <div class="user-info-card">
+            <h3>Dostępne zajęcia do rezerwacji</h3>
+            <div id="availableClassesList">
+                <p>Ładowanie dostępnych zajęć...</p>
+            </div>
+            <div id="bookingStatus" style="margin-top: 10px; font-weight: bold; display: none;"></div>
+        </div>
+
+        <div class="user-info-card">
+            <h3>Moje Notatki i Rezultaty</h3>
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <form id="noteForm">
+                    <div style="margin-bottom: 15px;">
+                        <label for="wellbeing"
+                            style="display: block; margin-bottom: 5px; color: #5d4d42; font-weight: bold;">Jak się
+                            dzisiaj czujesz?</label>
+                        <textarea id="wellbeing" rows="2"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                            placeholder="Np. Mam dużo energii, lekki ból pleców..."></textarea>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="results"
+                            style="display: block; margin-bottom: 5px; color: #5d4d42; font-weight: bold;">Rezultaty
+                            treningu</label>
+                        <textarea id="results" rows="2"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                            placeholder="Np. Udało mi się zrobić pełnego psa z głową w dół!"></textarea>
+                    </div>
+                    <button type="submit" class="auth-btn"
+                        style="width: auto; padding: 10px 20px; background-color: #C4A69B;">Zapisz notatkę</button>
+                    <div id="noteStatus" style="margin-top: 10px; font-weight: bold; display: none;"></div>
+                </form>
+            </div>
+
+            <h4>Historia notatek</h4>
+            <div id="notesList">
+                <p>Ładowanie notatek...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Upewnij się, że użytkownik jest zalogowany i NIE JEST adminem (dla porządku)
+            const user = await checkAuth('customer');
+            if (user) {
+                document.getElementById('userNameDisplay').textContent = 'Witaj, ' + user.name;
+                document.getElementById('profileName').textContent = user.name;
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profileDate').textContent = new Date(user.created_at).toLocaleString();
+
+                // Załaduj notatki
+                loadNotes();
+                // Załaduj zajęcia
+                loadUserClasses();
+                loadAvailableClasses();
+            }
+        });
+
+        async function loadNotes() {
+            try {
+                const response = await fetch('/api/notes');
+                const notesList = document.getElementById('notesList');
+                if (response.ok) {
+                    const notes = await response.json();
+                    if (notes.length === 0) {
+                        notesList.innerHTML = '<p>Brak notatek. Dodaj pierwszą powyżej!</p>';
+                        return;
+                    }
+
+                    notesList.innerHTML = '';
+                    notes.forEach(note => {
+                        const noteDiv = document.createElement('div');
+                        noteDiv.style.background = 'white';
+                        noteDiv.style.padding = '15px';
+                        noteDiv.style.borderRadius = '8px';
+                        noteDiv.style.borderLeft = '4px solid #C4A69B';
+                        noteDiv.style.marginBottom = '15px';
+
+                        const date = new Date(note.created_at).toLocaleString();
+
+                        let html = `<p style="margin: 0 0 10px 0; font-size: 12px; color: #888;">${date}</p>`;
+                        if (note.wellbeing) {
+                            html += `<p style="margin: 0 0 5px 0;"><strong>Samopoczucie:</strong> ${note.wellbeing}</p>`;
+                        }
+                        if (note.results) {
+                            html += `<p style="margin: 0 0 5px 0;"><strong>Rezultaty:</strong> ${note.results}</p>`;
+                        }
+
+                        noteDiv.innerHTML = html;
+                        notesList.appendChild(noteDiv);
+                    });
+                }
+            } catch (err) {
+                console.error("Błąd ładowania notatek", err);
+            }
+        }
+
+        document.getElementById('noteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const wellbeing = document.getElementById('wellbeing').value;
+            const results = document.getElementById('results').value;
+            const statusDiv = document.getElementById('noteStatus');
+
+            if (!wellbeing && !results) {
+                statusDiv.textContent = 'Proszę wypełnić przynajmniej jedno pole.';
+                statusDiv.style.color = '#e74c3c';
+                statusDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/notes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wellbeing, results })
+                });
+
+                if (response.ok) {
+                    statusDiv.textContent = 'Notatka została zapisana!';
+                    statusDiv.style.color = '#2ecc71';
+                    statusDiv.style.display = 'block';
+                    document.getElementById('noteForm').reset();
+
+                    // Odśwież listę
+                    loadNotes();
+
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                } else {
+                    statusDiv.textContent = 'Błąd podczas zapisywania.';
+                    statusDiv.style.color = '#e74c3c';
+                    statusDiv.style.display = 'block';
+                }
+            } catch (err) {
+                statusDiv.textContent = 'Błąd serwera. Spróbuj powtórnie.';
+                statusDiv.style.color = '#e74c3c';
+                statusDiv.style.display = 'block';
+            }
+        });
+
+        async function loadUserClasses() {
+            try {
+                const response = await fetch('/api/user-classes');
+                const list = document.getElementById('userClassesList');
+                if (response.ok) {
+                    const classes = await response.json();
+                    if (classes.length === 0) {
+                        list.innerHTML = '<p>Brak zarezerwowanych zajęć.</p>';
+                        return;
+                    }
+
+                    list.innerHTML = '';
+                    classes.forEach(c => {
+                        const div = document.createElement('div');
+                        div.style.marginTop = '15px';
+                        div.style.background = 'white';
+                        div.style.padding = '15px';
+                        div.style.borderRadius = '8px';
+                        div.style.borderLeft = '4px solid #5a3d5c';
+
+                        const scheduledTime = new Date(c.scheduled_time).toLocaleString();
+
+                        div.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <div>
+                                    <h4 style="margin: 0 0 5px 0; color: #5a3d5c;">${c.title}</h4>
+                                    <p style="margin: 0; font-size: 14px; color: #666;">
+                                        <i class="fas fa-clock"></i> Czas trwania: ${c.duration} min | 
+                                        <i class="fas fa-calendar-check"></i> Zaplanowano: <strong>${scheduledTime}</strong>
+                                    </p>
+                                </div>
+                                <div>
+                                    <button onclick="toggleVideo('video-${c.reservation_id}')" class="auth-btn" style="width: auto; padding: 8px 15px; background-color: #5a3d5c; font-size: 13px; margin-right: 5px;">Odtwórz wideo</button>
+                                    <button onclick="cancelClass(${c.reservation_id})" class="auth-btn" style="width: auto; padding: 8px 15px; background-color: #e74c3c; font-size: 13px;">Odwołaj</button>
+                                </div>
+                            </div>
+                            <div id="video-${c.reservation_id}" style="display: none; margin-top: 15px;">
+                                <iframe width="100%" height="315" src="${c.video_url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px;"></iframe>
+                            </div>
+                        `;
+                        list.appendChild(div);
+                    });
+                }
+            } catch (err) {
+                console.error("Błąd ładowania rezerwacji", err);
+            }
+        }
+
+        function toggleVideo(id) {
+            const vidDiv = document.getElementById(id);
+            if (vidDiv.style.display === 'none') {
+                vidDiv.style.display = 'block';
+            } else {
+                vidDiv.style.display = 'none';
+            }
+        }
+
+        async function loadAvailableClasses() {
+            try {
+                const response = await fetch('/api/classes');
+                const list = document.getElementById('availableClassesList');
+                if (response.ok) {
+                    const classes = await response.json();
+                    if (classes.length === 0) {
+                        list.innerHTML = '<p>Brak dostępnych zajęć w tej chwili.</p>';
+                        return;
+                    }
+
+                    list.innerHTML = '';
+                    classes.forEach(c => {
+                        const div = document.createElement('div');
+                        div.style.marginTop = '15px';
+                        div.style.background = 'white';
+                        div.style.padding = '15px';
+                        div.style.borderRadius = '8px';
+                        div.style.borderLeft = '4px solid #2ecc71';
+
+                        // Minimum time for booking is current time
+                        const now = new Date();
+                        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                        const minDateTime = now.toISOString().slice(0, 16);
+
+                        div.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div style="flex: 1; min-width: 250px;">
+                                    <h4 style="margin: 0 0 5px 0; color: #5a3d5c;">${c.title}</h4>
+                                    <p style="margin: 0; font-size: 14px; color: #666;">
+                                        <i class="fas fa-clock"></i> Czas trwania: ${c.duration} min | VOD <i class="fas fa-video"></i>
+                                    </p>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                    <input type="datetime-local" id="datetime-${c.id}" min="${minDateTime}" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-family: 'Inter', sans-serif;">
+                                    <button onclick="bookClass(${c.id}, '${c.title}')" class="auth-btn" style="width: auto; padding: 8px 15px; background-color: #2ecc71; font-size: 13px;">Zapisz się</button>
+                                </div>
+                            </div>
+                        `;
+                        list.appendChild(div);
+                    });
+                }
+            } catch (err) {
+                console.error("Błąd ładowania dostępnych zajęć", err);
+            }
+        }
+
+        async function bookClass(classId, title) {
+            const statusDiv = document.getElementById('bookingStatus');
+            const datetimeInput = document.getElementById('datetime-' + classId).value;
+
+            if (!datetimeInput) {
+                statusDiv.textContent = 'Proszę wybrać datę i godzinę treningu.';
+                statusDiv.style.color = '#e74c3c';
+                statusDiv.style.display = 'block';
+                setTimeout(() => statusDiv.style.display = 'none', 3000);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/user-classes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ classId: classId, scheduledTime: datetimeInput })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusDiv.innerHTML = `Pomyślnie zapisano na zajęcia! <br><small><strong>Wiadomość systemowa:</strong> Wybrałeś zajęcia "${title}" na termin ${new Date(datetimeInput).toLocaleString()}. Link wideo będzie tam na Ciebie czekał!</small>`;
+                    statusDiv.style.color = '#2ecc71';
+                    statusDiv.style.display = 'block';
+                    loadUserClasses(); // Refresh reservations
+
+                    // Show simulated native browser notification alert
+                    alert(`Potwierdzenie Rezerwacji:\nZarezerwowałeś: ${title}\nCzas: ${new Date(datetimeInput).toLocaleString()}`);
+                } else {
+                    statusDiv.textContent = data.error || 'Błąd zapisu.';
+                    statusDiv.style.color = '#e74c3c';
+                    statusDiv.style.display = 'block';
+                }
+                setTimeout(() => statusDiv.style.display = 'none', 6000);
+            } catch (err) {
+                console.error("Błąd rezerwacji", err);
+            }
+        }
+
+        async function cancelClass(classId) {
+            if (!confirm('Czy na pewno chcesz odwołać rezerwację?')) return;
+
+            try {
+                const response = await fetch('/api/user-classes/' + classId, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadUserClasses(); // Refresh reservations
+                } else {
+                    alert('Błąd odwoływania zajęć.');
+                }
+            } catch (err) {
+                console.error("Błąd anulowania", err);
+            }
+        }
+    </script>
+</body>
+
+</html>

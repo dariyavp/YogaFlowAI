@@ -1,0 +1,489 @@
+/* Reset i podstawowe style */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f0ed;
+    /* Jasny beż nawiązujący do tła */
+    color: #4a3f35;
+    overflow-x: hidden;
+}
+
+/* Sekcja Hero */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 8%;
+}
+
+/* Treść po lewej stronie */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    line-height: 1.2;
+    color: #5d4d42;
+    margin-bottom: 2rem;
+    font-weight: 400;
+}
+
+h1 span {
+    font-weight: 300;
+}
+
+/* Przyciski */
+.cta-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.btn {
+    padding: 12px 35px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: #cbb2a7;
+    color: #fff;
+    border: 1px solid #cbb2a7;
+}
+
+.btn-secondary {
+    background-color: rgba(203, 178, 167, 0.5);
+    color: #5d4d42;
+    border: 1px solid transparent;
+}
+
+.btn:hover {
+    filter: brightness(0.9);
+    transform: translateY(-2px);
+}
+
+/* Obsługa zdjęcia w tle */
+.hero-image-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    /* Filtr rozjaśniający, by tekst był czytelny (opcjonalnie) */
+    opacity: 0.9;
+}
+
+/* Responsywność dla urządzeń mobilnych */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero {
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Sekcja O Nas */
+.about-us {
+    padding: 100px 8%;
+    background-color: #e5ddd5;
+    /* Nieco ciemniejszy odcień beżu dla kontrastu */
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    text-align: center;
+    color: #5d4d42;
+    margin-bottom: 60px;
+    font-weight: 400;
+}
+
+.about-container {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    margin-bottom: 100px;
+}
+
+/* Stylizacja obrazka */
+.about-image {
+    flex: 1;
+}
+
+.about-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+    /* Delikatny cień */
+}
+
+/* Stylizacja tekstu */
+.about-text {
+    flex: 1;
+    padding: 0 20px;
+}
+
+.about-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 25px;
+    color: #5d4d42;
+}
+
+.about-text p {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.8;
+    color: #6b5d52;
+    font-size: 1.1rem;
+    text-align: justify;
+}
+
+/* Nagłówek zespołu na dole */
+.team-title {
+    margin-top: 40px;
+}
+
+/* Responsywność dla sekcji O nas */
+@media (max-width: 992px) {
+    .about-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .about-text p {
+        text-align: center;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+    }
+}
+
+/* Wspólne style dla sekcji */
+.about-section,
+.team-section {
+    background-color: #dcd4cc;
+    /* Kolor beżowy ze zdjęcia */
+    padding: 80px 10%;
+    text-align: center;
+}
+
+.main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    color: #5d4d42;
+    margin-bottom: 60px;
+    font-weight: 400;
+}
+
+/* Układ O Nas */
+.about-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    /* Zdjęcie nieco szersze niż tekst */
+    gap: 60px;
+    align-items: center;
+    /* Wyśrodkowanie tekstu w pionie */
+}
+
+.about-image-wrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.about-content {
+    text-align: center;
+}
+
+.about-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #5d4d42;
+}
+
+.about-content p {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.7;
+    color: #5d4d42;
+    font-size: 1.05rem;
+    white-space: pre-line;
+    /* Pozwala na zachowanie łamania linii */
+}
+
+/* Układ Zespołu */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 równe kolumny */
+    gap: 25px;
+    margin-bottom: 100px;
+}
+
+.team-card img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    /* Proporcje pionowe portretów */
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.team-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: #5d4d42;
+    font-weight: 300;
+}
+
+.faq-title {
+    margin-top: 50px;
+}
+
+/* Responsywność */
+@media (max-width: 1024px) {
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 kolumny na tabletach */
+    }
+
+    .about-grid {
+        grid-template-columns: 1fr;
+        /* Tekst pod zdjęciem na mniejszych ekranach */
+    }
+}
+
+/* Kontener FAQ */
+.faq-container {
+    background-color: #dcd4cc;
+    padding: 20px 10% 80px 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.faq-list {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    /* Odstęp między kapsułkami */
+    margin-bottom: 60px;
+}
+
+/* Stylizacja pojedynczej kapsułki FAQ */
+.faq-item {
+    background-color: #ede6e0;
+    /* Jaśniejszy beż wewnątrz kapsułki */
+    padding: 30px 40px;
+    border-radius: 20px;
+    /* Mocno zaokrąglone rogi */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    /* Subtelny cień */
+    text-align: center;
+}
+
+.faq-item h4 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+    color: #5d4d42;
+    margin-bottom: 10px;
+}
+
+.faq-item p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #6b5d52;
+}
+
+/* Dolne przyciski CTA */
+.footer-cta {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Używamy klas btn z pierwszej sekcji, 
+   więc nie musimy ich powtarzać, chyba że chcesz zmienić rozmiar */
+.footer-cta .btn {
+    min-width: 180px;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .faq-item {
+        padding: 20px;
+    }
+
+    .footer-cta {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* =========================================================================
+   STYLE LOGOWANIA, REJESTRACJI I KONT - YOGAFLOW AI AUTH
+========================================================================= */
+
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #dcd4cc;
+    /* Lekki, bardziej "różowy/fioletowy" beż dla odmiany, albo kolor z palety */
+    padding: 20px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.auth-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: #5d4d42;
+    /* Śliwkowy/ciemny fiolet */
+    text-decoration: none;
+    margin-bottom: 25px;
+    display: inline-block;
+}
+
+.auth-logo span {
+    font-weight: 300;
+}
+
+.auth-card {
+    background: #ffffff;
+    width: 100%;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    /* Miękki, głęboki cień */
+    text-align: center;
+}
+
+.auth-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #4a3f35;
+    margin-bottom: 10px;
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+    color: #7b6d62;
+    margin-bottom: 30px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #5d4d42;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e0d8d3;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    color: #4a3f35;
+    background-color: #fbf9f8;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #cbb2a7;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(203, 178, 167, 0.2);
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #C4A69B;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.05rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.auth-btn:hover {
+    background-color: #432c45;
+}
+
+.auth-redirect {
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: #5d4d42;
+}
+
+.auth-redirect a {
+    color: #5d4d42;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-redirect a:hover {
+    text-decoration: underline;
+}

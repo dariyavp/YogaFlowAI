@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administratora - YogaFlow AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .portal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: #2c3e50;
+            color: white;
+        }
+
+        .portal-header .auth-logo {
+            color: white;
+            margin: 0;
+        }
+
+        .portal-header .auth-logo span {
+            color: #f39c12;
+        }
+
+        .portal-content {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #5a3d5c;
+            color: white;
+        }
+    </style>
+</head>
+
+<body style="background-color: #fdfdfd;">
+
+    <header class="portal-header">
+        <a href="index.html" class="auth-logo">YogaFlow<span>Admin</span></a>
+        <div>
+            <span id="userNameDisplay" style="margin-right: 20px; font-weight: bold;"></span>
+            <button id="logoutBtn" class="auth-btn"
+                style="padding: 10px 20px; width: auto; font-size: 14px; background: #e74c3c;">Wyloguj</button>
+        </div>
+    </header>
+
+    <div class="portal-content">
+        <h1>Zarządzanie Użytkownikami</h1>
+        <p>Lista zarejestrowanych klientów w systemie.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Imię</th>
+                    <th>E-mail</th>
+                    <th>Rola</th>
+                    <th>Data rejestracji</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                <tr>
+                    <td colspan="5">Ładowanie danych...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Tylko admin może zobaczyć tę stronę
+            const user = await checkAuth('admin');
+            if (user) {
+                document.getElementById('userNameDisplay').textContent = 'Admin: ' + user.name;
+                loadUsers();
+            }
+        });
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                if (response.ok) {
+                    const users = await response.json();
+                    const tbody = document.getElementById('usersTableBody');
+                    tbody.innerHTML = '';
+
+                    users.forEach(u => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${u.id}</td>
+                            <td>${u.name}</td>
+                            <td>${u.email}</td>
+                            <td>${u.role}</td>
+                            <td>${new Date(u.created_at).toLocaleString()}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) {
+                console.error('Błąd pobierania użytkowników', err);
+            }
+        }
+    </script>
+</body>
+
+</html>
