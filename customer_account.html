@@ -100,6 +100,29 @@
                 <p>Ładowanie notatek...</p>
             </div>
         </div>
+
+        <div class="user-info-card ai-chat-section" style="border: 2px solid #C4A69B;">
+            <h3 style="color: #5a3d5c;"><i class="fas fa-robot"></i> Asystent AI YogaFlow</h3>
+            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Zapytaj naszego instruktora AI o poradę. Opisz
+                swoje dolegliwości, a AI zaproponuje idealny plan i dobierze zajęcia z naszej bazy!</p>
+
+            <div id="aiChatWindow"
+                style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 15px; height: 300px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;">
+                <div
+                    style="align-self: flex-start; background: #ECE3DA; padding: 10px 15px; border-radius: 15px; max-width: 80%;">
+                    <strong>AI:</strong> Cześć! W czym mogę Ci dzisiaj pomóc? Boli Cię kręgosłup, szukasz wyciszenia,
+                    czy może czegoś energicznego?
+                </div>
+            </div>
+
+            <form id="aiChatForm" style="display: flex; gap: 10px;">
+                <input type="text" id="aiMessageInput" placeholder="Napisz do Asystenta AI..."
+                    style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" required>
+                <button type="submit" id="aiSubmitBtn" class="auth-btn"
+                    style="width: auto; padding: 10px 20px; background-color: #5a3d5c;"><i
+                        class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
     </div>
 
     <script src="auth.js"></script>
@@ -364,6 +387,77 @@
             } catch (err) {
                 console.error("Błąd anulowania", err);
             }
+        }
+
+        // --- AI Chat Logic ---
+        document.getElementById('aiChatForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageInput = document.getElementById('aiMessageInput');
+            const chatWindow = document.getElementById('aiChatWindow');
+            const submitBtn = document.getElementById('aiSubmitBtn');
+            const messageText = messageInput.value.trim();
+
+            if (!messageText) return;
+
+            // Wyczyść input i zablokuj przycisk
+            messageInput.value = '';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            // Dodaj wiadomość użytkownika do okna czatu
+            appendMessage('Ty', messageText, 'user');
+
+            try {
+                // Wyślij zapytanie do naszego własnego serwera backendu
+                const response = await fetch('/api/ai-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Gemini zwraca Markdown, zamieniamy gwiazdki na <strong> i nowe linie na <br> dla czytelności
+                    let formattedText = data.reply
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<br>• $1')
+                        .replace(/\n/g, '<br>');
+
+                    appendMessage('AI', formattedText, 'ai');
+                } else {
+                    appendMessage('System', `<span style="color:red;">Błąd: ${data.error}</span>`, 'error');
+                }
+            } catch (error) {
+                console.error('Błąd czatu:', error);
+                appendMessage('System', '<span style="color:red;">Wystąpił obszar podczas łączenia z asystentem. Upewnij się, że masz połącznie z internetem i aktywny klucz API.</span>', 'error');
+            } finally {
+                // Odblokuj input po otrzymaniu odpowiedzi
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                messageInput.focus();
+            }
+        });
+
+        function appendMessage(sender, text, type) {
+            const chatWindow = document.getElementById('aiChatWindow');
+            const messageDiv = document.createElement('div');
+
+            // Stylizacja zależna od nadawcy
+            messageDiv.style.alignSelf = type === 'user' ? 'flex-end' : 'flex-start';
+            messageDiv.style.background = type === 'user' ? '#C4A69B' : (type === 'error' ? '#ffeeee' : '#ECE3DA');
+            messageDiv.style.color = type === 'user' ? 'white' : 'inherit';
+            messageDiv.style.padding = '10px 15px';
+            messageDiv.style.borderRadius = '15px';
+            messageDiv.style.maxWidth = '80%';
+            messageDiv.style.wordWrap = 'break-word';
+            messageDiv.style.lineHeight = '1.4';
+
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            chatWindow.appendChild(messageDiv);
+
+            // Automatyczne przewijanie na dół
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
     </script>
 </body>

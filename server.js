@@ -1,3 +1,6 @@
+require('dotenv').config();
+const { GoogleGenAI } = require('@google/genai');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -6,6 +9,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const db = require('./database');
+
+// Inicjalizacja klienta Gemini
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -225,6 +232,62 @@ app.delete('/api/user-classes/:reservationId', authenticateToken, (req, res) => 
         }
         res.json({ message: 'Anulowano rezerwację.' });
     });
+});
+
+
+// 12. Asystent AI - Czat
+app.post('/api/ai-chat', authenticateToken, async (req, res) => {
+    const { message } = req.body;
+    if (!message) {
+        return res.status(400).json({ error: 'Wiadomość jest wymagana.' });
+    }
+
+    try {
+        // Zdobądźmy listę dostępnych zajęć z naszej bazy danych
+        const sql = `SELECT id, title, duration FROM classes`;
+        db.all(sql, [], async (err, classes) => {
+            if (err) {
+                console.error('Błąd pobierania bazy do AI:', err);
+                return res.status(500).json({ error: 'Błąd podczas łączenia z bazą wiedzy Asystenta.' });
+            }
+
+            // Tworzenie "System Prompt" (kontekstu dla AI)
+            let classesContext = 'Dostępne zajęcia w naszej bazie, które możesz polecić:\n';
+            classes.forEach(c => {
+                classesContext += `- Pod nazwą: "${c.title}" (Czas trwania: ${c.duration} min)\n`;
+            });
+
+            const systemInstruction = `Jesteś "YogaFlow AI", pomocnym instruktorem jogi w aplikacji YogaFlow.
+Zadania:
+1. Doradzaj użytkownikom, jak radzić sobie z dolegliwościami fizycznymi i stresem (np. "boli mnie kark", "czuję napięcie w dolnym odcinku pleców").
+2. Bądź empatyczny i motywujący. Odpisuj w języku polskim. Używaj formatowania Markdown (np. pogrubienia i listy punktowane).
+3. Na końcu swojej porady ZAWSZE poszukaj w podanej liście "Dostępnych zajęć" takich, które pomogą na zgłoszony problem i ZAREKOMENDUJ przynajmniej jedne zajęcia PO NAZWIE (tylko te z listy dostępnych!).
+
+${classesContext}`;
+
+            try {
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: message,
+                    config: {
+                        systemInstruction: systemInstruction,
+                    }
+                });
+
+                res.json({ reply: response.text });
+            } catch (aiError) {
+                console.error('Błąd od Google Gemini:', aiError);
+                if (aiError.message && aiError.message.includes('API key not valid')) {
+                    res.status(500).json({ error: 'Błąd autoryzacji AI. Prawdopodobnie klucz API w pliku .env jest błędny lub brakujący.' });
+                } else {
+                    res.status(500).json({ error: 'Niestety Asystent AI jest w tej chwili niedostępny.' });
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Błąd ogólny czatu:', error);
+        res.status(500).json({ error: 'Wystąpił nieoczekiwany błąd serwera.' });
+    }
 });
 
 
