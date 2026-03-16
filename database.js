@@ -77,8 +77,14 @@ db.serialize(() => {
                     stmt.run(['Joga Relaksacyjna na Dobry Sen', 45, 'https://www.youtube.com/embed/BiqaNN1Zc1I']);
                     stmt.run(['Ashtanga Vinyasa dla Początkujących', 60, 'https://www.youtube.com/embed/5XCBOW7s0EE']);
                     stmt.run(['Medytacja i oddech (Pranajama)', 20, 'https://www.youtube.com/embed/inpok4MKVLM']);
+                    stmt.run(['Joga na bóle pleców i lędźwi', 25, 'https://www.youtube.com/embed/2zE_b8E645o']);
+                    stmt.run(['Rozluźnienie karku i ramion', 15, 'https://www.youtube.com/embed/SedzswEwpPw']);
+                    stmt.run(['Joga na odstresowanie i wyciszenie', 30, 'https://www.youtube.com/embed/b1H3xO3x_Js']);
+                    stmt.run(['Szybka poranna energia (Rozbudzenie)', 10, 'https://www.youtube.com/embed/K-pGq_wEnM4']);
+                    stmt.run(['Głębokie rozciąganie bioder i relaks', 35, 'https://www.youtube.com/embed/8-W71OaU1oY']);
+                    stmt.run(['Wzmacniająca Vinyasa na całe ciało', 40, 'https://www.youtube.com/embed/v7AYKMP6rOE']);
                     stmt.finalize();
-                    console.log('Dodano przykładowe wideo zajęcia do bazy.');
+                    console.log('Dodano 10 przykładowych wideo zajęć do bazy.');
                 }
             });
         }
