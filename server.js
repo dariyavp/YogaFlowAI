@@ -8,7 +8,7 @@ const path = require('path');
 const db = require('./database');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = 'super_secret_key_yoga_flow_ai_123'; // W środowisku produkcyjnym powinno to być w pliku .env
 
 // Middleware
