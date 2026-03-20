@@ -46,12 +46,12 @@ Ważne: Aplikacja wykorzystuje swój własny serwer oparty na Node.js do obsług
    node server.js
    ```
 5. Kiedy w terminalu pokaże się poniższy komunikat, serwer jest gotowy:
-   > Serwer działa na http://localhost:3001
+   > Serwer działa na http://localhost:3002
    > Połączono z bazą SQLite
    > Tabela users gotowa...
 
 6. Zostaw uruchomiony terminal w tle i wejdź przez dowolną przeglądarkę internetową (np. Chrome) na adres:
-   👉 **http://localhost:3001**
+   👉 **http://localhost:3002**
 
 ## 📁 Główne pliki projektu
 

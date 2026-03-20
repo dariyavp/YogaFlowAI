@@ -15,7 +15,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const JWT_SECRET = 'super_secret_key_yoga_flow_ai_123'; // W środowisku produkcyjnym powinno to być w pliku .env
 
 // Middleware
