@@ -1,0 +1,5 @@
+node_modules/
+.env
+.DS_Store
+database.sqlite
+# (Bazy danych zazwyczaj nie powinno się wysyłać na githuba, tylko sam skrypt do jej inicjalizacji)
